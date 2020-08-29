@@ -9,14 +9,14 @@
 import UIKit
 
 class ViewController: UIViewController {
-    var searchResults = [String]()
+    var searchResults = [SearchResult]()
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //上面适配到safeArea之下，56刚好是searchBar的高度。
-        tableView.contentInset = UIEdgeInsets(top: 56, left: 0, bottom: 0, right: 0)
+        //tableView上接safearea，searchBar高度是56
+        tableView.contentInset = UIEdgeInsets(top: 56, left: 0, bottom: -56, right: 0)
         // Do any additional setup after loading the view.
         
     }
@@ -27,13 +27,19 @@ extension ViewController:UISearchBarDelegate{
     
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchResults = []
         for i in 0...2 {
-            searchResults.append(String(format: "Fake Result %d for '%@'", i,searchBar.text!))
+            let searchResult = SearchResult()
+            searchResult.name = String(format: "welcome--> ", i);
+            searchResult.artistName = searchBar.text!
+            searchResults.append(searchResult)
         }
         tableView.reloadData()
+        searchBar.resignFirstResponder()
     }
     
+    func position(for bar: UIBarPositioning) -> UIBarPosition {
+        return .topAttached
+    }
 }
 
 extension ViewController:UITableViewDelegate,UITableViewDataSource{
@@ -46,9 +52,11 @@ extension ViewController:UITableViewDelegate,UITableViewDataSource{
         let cellIdentifier = "SearchResultCell"
         var cell:UITableViewCell! = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)
         if cell == nil {
-            cell = UITableViewCell(style: .default, reuseIdentifier: cellIdentifier)
+            cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellIdentifier)
         }
-        cell.textLabel!.text = searchResults[indexPath.row]
+        let searchResult = searchResults[indexPath.row];
+        cell.textLabel!.text = searchResult.name
+        cell.detailTextLabel!.text = searchResult.artistName
         return cell
     }
     
